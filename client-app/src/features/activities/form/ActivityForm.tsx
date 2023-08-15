@@ -6,9 +6,10 @@ interface Props {
     activity: Activity | undefined;
     closeForm: () => void;
     createOrEdit: (activity: Activity) => void
+    submitting: boolean
 }
 
-const ActivityForm = ({ activity: selectedActivity, closeForm, createOrEdit }: Props) => {
+const ActivityForm = ({ activity: selectedActivity, closeForm, createOrEdit, submitting }: Props) => {
 
     const initialState = selectedActivity ?? {
         id: '',
@@ -45,7 +46,7 @@ const ActivityForm = ({ activity: selectedActivity, closeForm, createOrEdit }: P
                     <Input placeholder='Category' value={activity.category} name='category' onChange={handleInpoutChange} />
                 </Form.Field>
                 <Form.Field>
-                    <Input placeholder='Date' value={activity.date} name='date' onChange={handleInpoutChange}/>
+                    <Input type='date' placeholder='Date' value={activity.date} name='date' onChange={handleInpoutChange}/>
                 </Form.Field>
                 <Form.Field>
                     <Input placeholder='City' value={activity.city} name='city' onChange={handleInpoutChange} />
@@ -54,7 +55,7 @@ const ActivityForm = ({ activity: selectedActivity, closeForm, createOrEdit }: P
                     <Input placeholder='Venue' value={activity.venue} name='venue' onChange={handleInpoutChange}/>
                 </Form.Field>
 
-                <Button floated='right' positive type='submit' content="Submit"  />
+                <Button loading={submitting} floated='right' positive type='submit' content="Submit"  />
                 <Button floated='right' type='button' content="Cancel" onClick={closeForm} />
             </Form>
         </Segment>
