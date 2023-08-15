@@ -1,6 +1,7 @@
 import React, {useState, ChangeEvent} from 'react'
 import { Segment, Form, Button, Input, TextArea } from 'semantic-ui-react'
 import { Activity } from '../../../app/models/activity'
+import { useStore } from '../../../app/store/store';
 
 interface Props {
     activity: Activity | undefined;
@@ -10,6 +11,8 @@ interface Props {
 }
 
 const ActivityForm = ({ activity: selectedActivity, closeForm, createOrEdit, submitting }: Props) => {
+
+     const {activityStore} = useStore();
 
     const initialState = selectedActivity ?? {
         id: '',
