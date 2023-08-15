@@ -12,11 +12,10 @@ const Navbar = ({ openForm }: Props) => {
                     <img src="/assets/logo.png" alt="logo" style={{ marginRight: '10px' }} />
                     iSocial
                 </Menu.Item>
-                <Menu.Item name='iSocial' />
+                <Menu.Item name='isocial' content="iSocial" />
                 <Menu.Item >
-                    <Button positive content='Create iSocial' onClick={openForm} />
+                    <Button onClick={openForm} positive content='Create iSocial'  />
                 </Menu.Item>
-
             </Container>
         </Menu>
     )
