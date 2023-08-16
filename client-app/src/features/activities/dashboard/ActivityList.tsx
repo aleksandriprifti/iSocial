@@ -5,12 +5,11 @@ import { useStore } from '../../../app/store/store';
 
 interface Props{
     activities: Activity[]
-    selectActivity: (id: string) => void;
     deleteActivity: (id: string) => void;
     submitting: boolean
 }
 
-const ActivityList = ({activities, selectActivity, deleteActivity, submitting}: Props) => {
+const ActivityList = ({activities, deleteActivity, submitting}: Props) => {
 
       const {activityStore} = useStore();
 
