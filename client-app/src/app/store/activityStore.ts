@@ -2,17 +2,24 @@ import {makeAutoObservable, runInAction } from "mobx";
 import { Activity } from "../models/activity";
 import agent from "../api/Agent";
 import {v4 as uuid} from 'uuid'
+import { act } from "@testing-library/react";
+import { Agent } from "http";
 
 
 export default class ActivityStore {
-   activities: Activity[] = [];
-   selectedActivity: Activity | undefined = undefined;
-   editMode = false;
-   loading = false;
-   loadingInitial = false;
+    activityRegistry = new Map<string, Activity>();
+    selectedActivity: Activity | undefined = undefined;
+    editMode = false;
+    loading = false;
+    loadingInitial = true;
     
     constructor() {
         makeAutoObservable(this)
+    }
+
+    get activitiesByDate() {
+        return Array.from(this.activityRegistry.values()).sort((a, b) => 
+            Date.parse(a.date) - Date.parse(b.date));
     }
 
     loadActivities = async () => {
@@ -20,9 +27,8 @@ export default class ActivityStore {
         try {
             const activities = await agent.Activities.list();
             runInAction(() => {
-                activities.forEach(activity => {
-                activity.date = activity.date.split('T')[0];
-                this.activities.push(activity);
+            activities.forEach(activity => {
+                this.setActivity(activity);
             })
             this.loadingInitial = false;
             });
@@ -36,21 +42,30 @@ export default class ActivityStore {
         }
     }
 
-    selectActivity = (id: string ) => {
-        this.selectedActivity = this.activities.find(a => a.id == id);
+    loadActivity = async (id: string) => {
+        let activity = this.getActivity(id);
+        if(activity) this.selectedActivity = activity;
+        else{
+            this.loadingInitial = true;
+            try {
+                activity = await agent.Activities.details(id);
+                this.setActivity(activity);
+                this.selectedActivity = activity;
+                this.loadingInitial = false;
+            } catch (error) {
+                console.log(error)
+                this.loadingInitial = false;
+            }
+        }
     }
 
-    cancleSelectedActivity = () => {
-        this.selectedActivity = undefined;
+    private setActivity = (activity: Activity) => {
+            activity.date = activity.date.split('T')[0];
+            this.activityRegistry.set(activity.id, activity);
     }
 
-    openForm = (id?: string) => {
-        id ? this.selectActivity(id) : this.cancleSelectedActivity();
-        this.editMode = true;
-    }
-
-    closeForm = () => {
-        this.editMode = false;
+    private getActivity = (id: string) => {
+        return this.activityRegistry.get(id);
     }
 
     createActivity = async (activity: Activity) => {
@@ -60,7 +75,7 @@ export default class ActivityStore {
         try {
             await agent.Activities.create(activity);
             runInAction(() => {
-                this.activities.push(activity);
+                this.activityRegistry.set(activity.id, activity);
                 this.selectedActivity = activity;
                 this.editMode = false;
                 this.loading = false;
@@ -79,7 +94,7 @@ export default class ActivityStore {
         try {
             await agent.Activities.update(activity);
             runInAction(() => {
-                this.activities = [...this.activities.filter(a => a.id !== activity.id), activity];
+                this.activityRegistry.set(activity.id, activity);
                 this.selectedActivity = activity;
                 this.editMode = false;
                 this.loading = false;
@@ -91,4 +106,22 @@ export default class ActivityStore {
             })
         }
     }
+
+    deleteActivity = async (id: string) =>{
+        this.loading = true;
+        try {
+            await agent.Activities.delete(id)
+            runInAction(() => {
+                this.activityRegistry.delete(id);
+                this.loading = false;
+            })
+        } catch (error) {
+            console.log(error)
+            runInAction(() => {
+                this.loading = false;
+            })
+        }
+    }
+
+
 }

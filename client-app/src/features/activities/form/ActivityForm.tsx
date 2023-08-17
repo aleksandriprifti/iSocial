@@ -7,7 +7,7 @@ const ActivityForm = () => {
 
      const {activityStore} = useStore();
 
-     const {selectedActivity, closeForm, createActivity, updateActivity, loading} = activityStore;
+     const {selectedActivity, createActivity, updateActivity, loading} = activityStore;
 
     const initialState = selectedActivity ?? {
         id: '',
@@ -53,7 +53,7 @@ const ActivityForm = () => {
                 </Form.Field>
 
                 <Button loading={loading} floated='right' positive type='submit' content="Submit"  />
-                <Button floated='right' type='button' content="Cancel" onClick={closeForm} />
+                <Button floated='right' type='button' content="Cancel"  />
             </Form>
         </Segment>
     )
